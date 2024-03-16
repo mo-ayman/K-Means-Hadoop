@@ -9,7 +9,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 public class KMeansReducer extends Reducer<LongWritable, PointWritable, LongWritable, PointWritable> {
     @Override
     public void reduce(LongWritable key, Iterable<PointWritable> values, Context context) throws IOException, InterruptedException {
-        PointWritable point = values.iterator().next();
+        PointWritable point = new PointWritable(values.iterator().next().toString().split(","));
         int size = 1;
         while(values.iterator().hasNext()) {
 

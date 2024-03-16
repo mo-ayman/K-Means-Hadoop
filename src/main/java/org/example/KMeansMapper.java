@@ -16,7 +16,7 @@ public class KMeansMapper extends Mapper<LongWritable, Text, LongWritable, Point
     public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
         String[] values = value.toString().split(",");
         // put 0-3 into the point
-        currentPoint.setFeature(Arrays.copyOfRange(values, 0, 4));
+        currentPoint.setFeature(Arrays.copyOfRange(values, 0, values.length - 1));
         int centroidCount = Integer.parseInt(context.getConfiguration().get("centroidCount"));
         double min_dis = Double.MAX_VALUE;
 
