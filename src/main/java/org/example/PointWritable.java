@@ -120,14 +120,12 @@ public class PointWritable implements WritableComparable<PointWritable> {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("(");
         for (int i = 0; i < features.length; i++) {
             sb.append(features[i]);
             if (i < features.length - 1) {
-                sb.append(", ");
+                sb.append(",");
             }
         }
-        sb.append(")");
         return sb.toString();
     }
 
