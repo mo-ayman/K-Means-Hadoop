@@ -12,6 +12,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
 
 public class KMeansDriver {
@@ -56,6 +58,49 @@ public class KMeansDriver {
         return true;
     }
 
+    private static double getAccuracy(String dataFilePath, String[] centroids) {
+        HashMap<Integer, HashMap<String, Integer>> centroidAssignments = new HashMap<>();
+        int dataSize = 0;
+        PointWritable[] centroidPoints = new PointWritable[centroids.length];
+        for (int i = 0; i < centroids.length; i++) {
+            centroidPoints[i] = new PointWritable(centroids[i].split(","));
+            centroidAssignments.put(i, new HashMap<>());
+        }
+        try {
+            FileReader reader = new FileReader(dataFilePath);
+            BufferedReader br = new BufferedReader(reader);
+            String line;
+            while ((line = br.readLine()) != null) {
+                dataSize++;
+                String[] split = line.split(",");
+                String label = split[split.length - 1];
+                PointWritable point = new PointWritable(Arrays.copyOfRange(split, 0, split.length - 1));
+                double minDistance = Double.MAX_VALUE;
+                int minCentroid = -1;
+                for (int i = 0; i < centroidPoints.length; i++) {
+                    double distance = point.distance(centroidPoints[i]);
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        minCentroid = i;
+                    }
+                }
+                centroidAssignments.get(minCentroid).put(label, centroidAssignments.get(minCentroid).getOrDefault(label, 0) + 1);
+            }
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        int trueAssignments = 0;
+        for (int i = 0; i < centroidPoints.length; i++) {
+            int maxCount = Integer.MIN_VALUE;
+            for (int count : centroidAssignments.get(i).values())
+                if (count > maxCount)
+                    maxCount = count;
+            trueAssignments += maxCount;
+        }
+        return trueAssignments / (double) dataSize;
+    }
+
     public static void main(String[] args) throws Exception {
         if (args.length != 3) {
             System.err.println("Usage KMeansDriver <input_dir> <output_dir> <number_of_classes>");
@@ -78,6 +123,7 @@ public class KMeansDriver {
         String input = args[0];
         String output = args[1];
 
+        String[] newCentroids = new String[0];
         for (int i = 0; i < 1000; i++) {
             System.out.println("Iteration " + i);
 
@@ -102,7 +148,7 @@ public class KMeansDriver {
                 System.err.println("Iteration " + i + " Failed!");
                 System.exit(1);
             }
-            String[] newCentroids = readNewCentroids(output + "/part-r-00000", numberOfClasses);
+            newCentroids = readNewCentroids(output + "/part-r-00000", numberOfClasses);
             for (int j = 0; j < numberOfClasses; j++)
                 if (newCentroids[j] == null)
                     newCentroids[j] = oldCentroids[j];
@@ -112,5 +158,7 @@ public class KMeansDriver {
                 conf.set(String.valueOf(j), newCentroids[j]);
             oldCentroids = newCentroids;
         }
+        
+        System.out.println(getAccuracy(input + "/iris.data.txt", newCentroids));
     }
 }
