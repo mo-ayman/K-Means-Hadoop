@@ -1,6 +1,7 @@
 package org.example;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -9,11 +10,10 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Random;
 
 public class KMeansDriver {
@@ -27,22 +27,29 @@ public class KMeansDriver {
         return centroid.toString();
     }
 
-    private static String[] readNewCentroids(String path, int numberOfClasses) {
+
+
+    private static String[] readNewCentroids(String hdfsPath, int numberOfClasses) {
         String[] newCentroids = new String[numberOfClasses];
+        Configuration conf = new Configuration();
         try {
-            FileReader reader = new FileReader(path);
-            BufferedReader br = new BufferedReader(reader);
+            FileSystem fs = FileSystem.get(conf);
+            FSDataInputStream inputStream = fs.open(new Path(hdfsPath));
+            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             while ((line = br.readLine()) != null) {
                 String[] splitLine = line.split("\t");
                 newCentroids[Integer.parseInt(splitLine[0])] = splitLine[1];
             }
             br.close();
+            inputStream.close();
+            fs.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
         return newCentroids;
     }
+
 
     private static boolean shouldStop(String[] oldCentroids, String[] newCentroids) {
         System.out.println(Arrays.toString(oldCentroids));
@@ -58,7 +65,7 @@ public class KMeansDriver {
         return true;
     }
 
-    private static double getAccuracy(String dataFilePath, String[] centroids) {
+    private static double getAccuracy(String hdfsDataFilePath, String[] centroids) {
         HashMap<Integer, HashMap<String, Integer>> centroidAssignments = new HashMap<>();
         int dataSize = 0;
         PointWritable[] centroidPoints = new PointWritable[centroids.length];
@@ -66,9 +73,11 @@ public class KMeansDriver {
             centroidPoints[i] = new PointWritable(centroids[i].split(","));
             centroidAssignments.put(i, new HashMap<>());
         }
+        Configuration conf = new Configuration();
         try {
-            FileReader reader = new FileReader(dataFilePath);
-            BufferedReader br = new BufferedReader(reader);
+            FileSystem fs = FileSystem.get(conf);
+            FSDataInputStream inputStream = fs.open(new Path(hdfsDataFilePath));
+            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             while ((line = br.readLine()) != null) {
                 dataSize++;
@@ -84,9 +93,13 @@ public class KMeansDriver {
                         minCentroid = i;
                     }
                 }
-                centroidAssignments.get(minCentroid).put(label, centroidAssignments.get(minCentroid).getOrDefault(label, 0) + 1);
+                centroidAssignments.get(minCentroid)
+                        .put(label, centroidAssignments
+                                .get(minCentroid).getOrDefault(label, 0) + 1);
             }
             br.close();
+            inputStream.close();
+            fs.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
