@@ -1,7 +1,7 @@
 <project>
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.hadoopbook</groupId>
-    <artifactId>Kmeans-Hadoop</artifactId>
+    <artifactId>K-Means-Hadoop</artifactId>
     <version>4.0</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -21,15 +21,15 @@
             <version>4.11</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.mrunit</groupId>
-            <artifactId>mrunit</artifactId>
-            144
-            |
-            Chapter 6: Developing a MapReduce Application<version>1.1.0</version>
-            <classifier>hadoop2</classifier>
-            <scope>test</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.mrunit</groupId>-->
+<!--            <artifactId>mrunit</artifactId>-->
+<!--            144-->
+<!--            |-->
+<!--            Chapter 6: Developing a MapReduce Application<version>1.1.0</version>-->
+<!--            <classifier>hadoop2</classifier>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
         <!-- Hadoop test artifact for running mini clusters -->
         <dependency>
             <groupId>org.apache.hadoop</groupId>
