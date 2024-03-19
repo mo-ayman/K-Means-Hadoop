@@ -47,4 +47,3 @@ Replace `<input_dir>` with the directory containing input data, `<output_dir>` w
 ## License
 This project is licensed under the [MIT License](LICENSE).
 
----
