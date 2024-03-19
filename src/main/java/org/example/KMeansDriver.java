@@ -8,7 +8,6 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,8 +25,6 @@ public class KMeansDriver {
         centroid.append(lowerBounds[lowerBounds.length - 1] + (upperBounds[lowerBounds.length - 1] - lowerBounds[lowerBounds.length - 1]) * random.nextDouble());
         return centroid.toString();
     }
-
-
 
     private static String[] readNewCentroids(String hdfsPath, int numberOfClasses) {
         String[] newCentroids = new String[numberOfClasses];
@@ -49,7 +46,6 @@ public class KMeansDriver {
         }
         return newCentroids;
     }
-
 
     private static boolean shouldStop(String[] oldCentroids, String[] newCentroids) {
         System.out.println(Arrays.toString(oldCentroids));
